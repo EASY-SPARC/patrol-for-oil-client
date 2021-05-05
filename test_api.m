@@ -1,7 +1,7 @@
 import matlab.net.*
 import matlab.net.http.*
 r = RequestMessage;
-uri = URI('http://localhost:5000/kde/');
+uri = URI('http://localhost:5000/simulation/kde');
 resp = send(r,uri);
 kde = resp.Body.Data.kde;
 
@@ -13,11 +13,12 @@ colormap jet
 colorbar
 
 r = RequestMessage;
-uri = URI('http://localhost:5000/env_sensibility/');
+uri = URI('http://localhost:5000/mission/env_sensibility');
 resp = send(r,uri);
 env_sensibility = resp.Body.Data.env_sensibility;
 
 figure(2)
+title('Gaussian potential field')
 imagesc(env_sensibility)
 set(gca, 'YDir', 'normal')
 caxis([-1, 5])

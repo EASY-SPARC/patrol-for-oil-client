@@ -6,55 +6,51 @@ function response = reactive_robot(robot_id, weights, t_delay)
     while true
         % Retrieve kde, env_sensibility and robots positions/heading from server API
         r = RequestMessage;
-        uri = URI('http://localhost:5000/kde/');
+        uri = URI('http://localhost:5000/simulation/kde');
         resp = send(r,uri);
         kde = resp.Body.Data.kde;
 
         r = RequestMessage;
-        uri = URI('http://localhost:5000/env_sensibility/');
+        uri = URI('http://localhost:5000/simulation/env_sensibility');
         resp = send(r,uri);
         dist_grid = resp.Body.Data.env_sensibility;
 
         r = RequestMessage;
-        uri = URI('http://localhost:5000/robots_pos/');
+        uri = URI('http://localhost:5000/mission/robots_pos');
         resp = send(r,uri);
         robots_pos = resp.Body.Data.robots_pos;
         heading = resp.Body.Data.robots_heading;
 
         aux_mask = kde < 0;
 
-        %weights = [2.0, 0.1, 0.3, 0.2, 1];
-        %robot_id = 0;
-
         % Matlab's different indexing starts with 1 instead of 0
-        robot = robot_id + 1;
         robots_pos = robots_pos + 1;
 
-        neighbors = robots_pos(setdiff(1:end, robot), :);
-        target = computeTargetMulti(robots_pos(robot, :), heading(robot), kde, neighbors, dist_grid, weights);
-        if norm(target - robots_pos(robot, :)) > 0
+        neighbors = robots_pos(setdiff(1:end, robot_id), :);
+        target = computeTargetMulti(robots_pos(robot_id, :), heading(robot_id), kde, neighbors, dist_grid, weights);
+        if norm(target - robots_pos(robot_id, :)) > 0
             % A*
             GoalRegister = int8(zeros(size(aux_mask)));
             GoalRegister(target(2), target(1)) = 1;
             for k = 1:size(neighbors, 1)
                aux_mask(neighbors(k, 2), neighbors(k, 1)) = 1;
             end
-            result = ASTARPATH(robots_pos(robot, 1), robots_pos(robot, 2), aux_mask, GoalRegister, 1);
+            result = ASTARPATH(robots_pos(robot_id, 1), robots_pos(robot_id, 2), aux_mask, GoalRegister, 1);
             if size(result, 1) > 1
-                move = [result(end - 1, 2) - robots_pos(robot, 1), result(end - 1, 1) - robots_pos(robot, 2)];
+                move = [result(end - 1, 2) - robots_pos(robot_id, 1), result(end - 1, 1) - robots_pos(robot_id, 2)];
 
-                robots_pos(robot, :) = robots_pos(robot, :) + move;
-                heading(robot) = atan2(move(2), move(1));
+                robots_pos(robot_id, :) = robots_pos(robot_id, :) + move;
+                heading(robot_id) = atan2(move(2), move(1));
             end
         else 
-            disp(['Robot ', num2str(robot), ' stopped']);
+            disp(['Robot ', num2str(robot_id), ' stopped']);
         end
 
 
         % Publish robot computed position and heading to server API
-        xgrid = robots_pos(robot, 1) - 1;
-        ygrid = robots_pos(robot, 2) - 1;
-        request_str = ['{"robot_id": "', num2str(robot_id), '", "xgrid": "', num2str(xgrid), '", "ygrid": "', num2str(ygrid), '", "robot_heading": "', num2str(heading(robot)) , '", "lon": "[]", "lat": "[]"}'];
+        xgrid = robots_pos(robot_id, 1) - 1;
+        ygrid = robots_pos(robot_id, 2) - 1;
+        request_str = ['{"robot_id": "', num2str(robot_id), '", "xgrid": "', num2str(xgrid), '", "ygrid": "', num2str(ygrid), '", "robot_heading": "', num2str(heading(robot_id)) , '", "lon": "[]", "lat": "[]"}'];
         request = RequestMessage( 'POST', ...
             [ContentTypeField( 'application/vnd.api+json' ), AcceptField('application/vnd.api+json')], ...
              request_str);
