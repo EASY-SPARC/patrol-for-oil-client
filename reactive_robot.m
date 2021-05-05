@@ -6,7 +6,7 @@ function response = reactive_robot(robot_id, weights, t_delay)
     while true
         % Retrieve kde, env_sensibility and robots positions/heading from server API
         r = RequestMessage;
-        uri = URI('http://localhost:5000/simulation/kde');
+        uri = URI('http://localhost:5000/mission/kde');
         resp = send(r,uri);
         kde = resp.Body.Data.kde;
 

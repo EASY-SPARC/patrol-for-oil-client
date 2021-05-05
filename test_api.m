@@ -1,7 +1,7 @@
 import matlab.net.*
 import matlab.net.http.*
 r = RequestMessage;
-uri = URI('http://localhost:5000/simulation/kde');
+uri = URI('http://localhost:5000/mission/kde');
 resp = send(r,uri);
 kde = resp.Body.Data.kde;
 
@@ -13,7 +13,7 @@ colormap jet
 colorbar
 
 r = RequestMessage;
-uri = URI('http://localhost:5000/mission/env_sensibility');
+uri = URI('http://localhost:5000/simulation/env_sensibility');
 resp = send(r,uri);
 env_sensibility = resp.Body.Data.env_sensibility;
 
