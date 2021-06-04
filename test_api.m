@@ -24,3 +24,11 @@ set(gca, 'YDir', 'normal')
 caxis([-1, 5])
 colormap jet
 colorbar
+
+figure(3)
+title('Gaussian potential field')
+imagesc((kde > 0).*env_sensibility)
+set(gca, 'YDir', 'normal')
+caxis([-1, 5])
+colormap jet
+colorbar

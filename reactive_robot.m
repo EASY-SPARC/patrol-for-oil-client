@@ -27,7 +27,7 @@ function response = reactive_robot(robot_id, weights, t_delay)
         robots_pos = robots_pos + 1;
 
         neighbors = robots_pos(setdiff(1:end, robot_id), :);
-        target = computeTargetMulti(robots_pos(robot_id, :), heading(robot_id), kde, neighbors, dist_grid, weights);
+        [target, mapvalue] = computeTargetMulti(robots_pos(robot_id, :), heading(robot_id), kde, neighbors, dist_grid, weights);
         if norm(target - robots_pos(robot_id, :)) > 0
             % A*
             GoalRegister = int8(zeros(size(aux_mask)));
@@ -44,6 +44,7 @@ function response = reactive_robot(robot_id, weights, t_delay)
             end
         else 
             disp(['Robot ', num2str(robot_id), ' stopped']);
+            disp(mapvalue);
         end
 
 
@@ -60,17 +61,17 @@ function response = reactive_robot(robot_id, weights, t_delay)
     end
 end
 
-function target = computeTargetMulti(pos, heading, grid, neighbors, dist_grid, weights)
+function [target, mapvalue] = computeTargetMulti(pos, heading, grid, neighbors, dist_grid, weights)
     max_value = 0;
     target = pos;
     max_heading = 0;
     mapvalue = zeros(size(grid));
     
-    omega_c = weights(1);
-    omega_s = weights(2);
-    omega_d = weights(3);
-    omega_n = weights(4);
-    kappa = weights(5);
+    kappa = weights(1);
+    omega_c = weights(2);
+    omega_s = weights(3);
+    omega_d = weights(4);
+    omega_n = weights(5);
     
     for i = 1:size(grid, 2)
         for j = 1:size(grid, 1)
