@@ -11,7 +11,7 @@ function response = reactive_robot(robot_id, weights, t_delay)
         kde = resp.Body.Data.kde;
 
         r = RequestMessage;
-        uri = URI('http://localhost:5000/simulation/env_sensibility');
+        uri = URI('http://localhost:5000/mission/env_sensibility');
         resp = send(r,uri);
         dist_grid = resp.Body.Data.env_sensibility;
 
@@ -93,7 +93,7 @@ function [target, mapvalue] = computeTargetMulti(pos, heading, grid, neighbors, 
                     end
                     
                     if grid(j, i)>0
-                        mapvalue(j,i) = max(kappa + omega_c*grid(j, i) + omega_s*dist_grid(j ,i) - omega_d * distance + omega_n * distance_nearest_neigh, 0);
+                        mapvalue(j,i) = max(kappa + omega_c*grid(j, i) + omega_s*dist_grid(j ,i) + omega_d * distance + omega_n * distance_nearest_neigh, 0);
                     else
                         mapvalue(j,i) = 0;
                     end
